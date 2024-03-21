@@ -1,0 +1,96 @@
+create table if not exists eauction.admin
+(
+    id       varchar(255) not null
+        primary key,
+    name     varchar(100) null,
+    email    varchar(250) not null,
+    password varchar(250) not null
+);
+
+create table if not exists eauction.auction_bid
+(
+    bid_id    int auto_increment
+        primary key,
+    stock_id  varchar(255) not null,
+    bidder_id varchar(255) not null,
+    bid_price bigint       not null,
+    bid_time  date         not null,
+    constraint auction_bid_stock_stock_id_fk
+        foreign key (stock_id) references eauction.stock (stock_id),
+    constraint auction_bid_user_id_fk
+        foreign key (bidder_id) references eauction.user (id)
+);
+
+create table auction_stock
+(
+    auction_id   varchar(255) not null
+        primary key,
+    stock_id     varchar(255) not null,
+    auction_name varchar(100) null,
+    auction_date date         not null,
+    highest_bid  bigint       not null,
+    bid_multiple bigint       not null comment 'in idr',
+    constraint auction_stock_stock_stock_id_fk
+        foreign key (stock_id) references stock (stock_id)
+);
+
+create table stock
+(
+    stock_id         varchar(225) not null
+        primary key,
+    seller_id        varchar(255) not null,
+    stock_name       varchar(100) not null,
+    price            bigint       not null,
+    category         varchar(50)  not null,
+    shipping_address varchar(500) not null,
+    stock_condition  varchar(25)  not null,
+    status           varchar(25)  not null,
+    created_date     date         null,
+    updated_date     date         null,
+    constraint stock_user_id_fk
+        foreign key (seller_id) references user (id)
+);
+
+create table stock_detail
+(
+    id           varchar(255) not null
+        primary key,
+    stock_id     varchar(255) not null,
+    description  varchar(250) null,
+    warranty     varchar(50)  null,
+    amount_stock int          null,
+    weight_stock varchar(100) null,
+    image_stock  varchar(500) null,
+    constraint stock_detail_stock_stock_id_fk
+        foreign key (stock_id) references stock (stock_id)
+);
+
+create table stock_detail
+(
+    id           varchar(255) not null
+        primary key,
+    stock_id     varchar(255) not null,
+    description  varchar(250) null,
+    warranty     varchar(50)  null,
+    amount_stock int          null,
+    weight_stock varchar(100) null,
+    image_stock  varchar(500) null,
+    constraint stock_detail_stock_stock_id_fk
+        foreign key (stock_id) references stock (stock_id)
+);
+
+create table stock_detail
+(
+    id           varchar(255) not null
+        primary key,
+    stock_id     varchar(255) not null,
+    description  varchar(250) null,
+    warranty     varchar(50)  null,
+    amount_stock int          null,
+    weight_stock varchar(100) null,
+    image_stock  varchar(500) null,
+    constraint stock_detail_stock_stock_id_fk
+        foreign key (stock_id) references stock (stock_id)
+);
+
+Note : Jika ada perubahan DB harap ini diubah juga, thanks
