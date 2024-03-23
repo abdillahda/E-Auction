@@ -1,4 +1,4 @@
-package com.eauction.application.domain;
+package com.eauction.application.domain.common.logout;
 
 import com.eauction.application.domain.common.GeneralResponse;
 import lombok.AllArgsConstructor;
@@ -10,9 +10,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class UserQueryResponse extends GeneralResponse {
+public class LogoutResponse extends GeneralResponse {
+    private String username;
     private String name;
-    private String phoneNumber;
-    private String address;
-    private String email;
 }

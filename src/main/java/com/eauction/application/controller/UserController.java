@@ -1,8 +1,13 @@
 package com.eauction.application.controller;
 
-import com.eauction.application.domain.UserQueryResponse;
 import com.eauction.application.domain.common.filtering.SearchQuery;
+import com.eauction.application.domain.common.login.LoginRequest;
+import com.eauction.application.domain.common.login.LoginResponse;
+import com.eauction.application.domain.common.logout.LogoutRequest;
+import com.eauction.application.domain.common.logout.LogoutResponse;
+import com.eauction.application.domain.user.UserQueryResponse;
 import com.eauction.application.model.User;
+import com.eauction.application.service.AuthenticationService;
 import com.eauction.application.service.UserService;
 import com.eauction.application.util.search.GenericSpecificationsBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +25,24 @@ import java.util.Objects;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public UserController(UserService userService){
+    public UserController(UserService userService, AuthenticationService authenticationService) {
         this.userService=userService;
+        this.authenticationService = authenticationService;
+    }
+
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public LoginResponse login(@RequestBody LoginRequest request) {
+        return null;
+    }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.OK)
+    public LogoutResponse logout(@RequestBody LogoutRequest request) {
+        return null;
     }
 
     @PostMapping("/query")
@@ -41,6 +60,4 @@ public class UserController {
                 .header("Content-Range", "customer : " + query.getContentRange() + "/" + Objects.requireNonNull(results).getTotalElements())
                 .body(results);
     }
-
-    
 }

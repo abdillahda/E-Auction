@@ -1,4 +1,19 @@
-create table if not exists eauction.admin
+create table user
+(
+    id               varchar(225)         not null
+        primary key,
+    username         varchar(250)         not null,
+    password         varchar(250)         null comment 'harus diencrypt',
+    enabled          tinyint(1) default 0 not null,
+    account_expired  tinyint(1) default 0 null,
+    account_locked   tinyint(1) default 0 null,
+    password_expired tinyint(1) default 0 null,
+    name             varchar(100)         not null,
+    phone_number     varchar(50)          null,
+    address          varchar(250)         null
+);
+
+create table admin
 (
     id       varchar(255) not null
         primary key,
@@ -7,7 +22,7 @@ create table if not exists eauction.admin
     password varchar(250) not null
 );
 
-create table if not exists eauction.auction_bid
+create table auction_bid
 (
     bid_id    int auto_increment
         primary key,
@@ -91,6 +106,26 @@ create table stock_detail
     image_stock  varchar(500) null,
     constraint stock_detail_stock_stock_id_fk
         foreign key (stock_id) references stock (stock_id)
+);
+
+create table role
+(
+    id        varchar(255) not null
+        primary key,
+    authority varchar(50)  not null,
+    role_name varchar(50)  not null
+);
+
+create table user_role
+(
+    id      varchar(255) not null
+        primary key,
+    user_id varchar(255) not null,
+    role_id varchar(255) not null,
+    constraint user_role_role_id_fk
+        foreign key (role_id) references role (id),
+    constraint user_role_user_id_fk
+        foreign key (user_id) references user (id)
 );
 
 Note : Jika ada perubahan DB harap ini diubah juga, thanks

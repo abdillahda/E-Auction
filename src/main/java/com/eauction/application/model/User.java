@@ -1,11 +1,14 @@
 package com.eauction.application.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.*;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -15,12 +18,28 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+    private transient PasswordEncoder passwordEncoder;
+
+    public User(@Qualifier("bCryptPasswordEncoder") PasswordEncoder encoder) {
+        this.passwordEncoder = encoder;
+    }
+
     @Id
     private String id = UUID.randomUUID().toString();
+    private String username;
+    private String password;
+    private String session;
+    private Boolean enabled;
     private String name;
     private String phoneNumber;
     private String address;
-    private String email;
-    private String password;
-    private Boolean verified;
+    private Date sessionValid;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "role_id", referencedColumnName = "id")
+    private Role role;
+
+    public void setPassword(String value) {
+        this.password = passwordEncoder.encode(value);
+    }
 }
