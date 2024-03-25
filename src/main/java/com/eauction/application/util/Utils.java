@@ -11,7 +11,7 @@ import java.util.Base64;
 import java.util.Objects;
 
 @Slf4j
-public class Util {
+public class Utils {
 
     private static String encryptCode = "2f632e6426b84be2800e4b6fb31dc5f3";
 

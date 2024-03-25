@@ -8,7 +8,7 @@ import com.eauction.application.domain.common.logout.LogoutRequest;
 import com.eauction.application.model.User;
 import com.eauction.application.repository.RoleRepository;
 import com.eauction.application.repository.UserRepository;
-import com.eauction.application.util.Util;
+import com.eauction.application.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,7 +48,7 @@ public class AuthenticationService {
                         .messageCode(ResponseMessage.USER_NOT_VERIFIED.getMessageCode())
                         .messageDetail(ResponseMessage.USER_NOT_VERIFIED.getMessageDetail()).build();
             } else {
-                if (bCryptPasswordEncoder.matches(Util.decryptAES(dataUser.getPassword()), loginRequest.getPassword())) {
+                if (bCryptPasswordEncoder.matches(Utils.decryptAES(dataUser.getPassword()), loginRequest.getPassword())) {
                     LocalDateTime today = LocalDateTime.now();
                     dataUser.setSession(UUID.randomUUID().toString());
                     dataUser.setSessionValid(Date.from(today.atZone(ZoneId.systemDefault()).toInstant()));
@@ -57,7 +57,7 @@ public class AuthenticationService {
                             .username(dataUser.getUsername())
                             .session(dataUser.getSession())
                             .name(dataUser.getName())
-                            .role(dataUser.getRole())
+                            .role(roleRepository.findById(dataUser.getRoleId()).orElse(null))
                             .messageCode(ResponseMessage.SUCCESS_LOGIN.getMessageCode())
                             .messageDetail(ResponseMessage.SUCCESS_LOGIN.getMessageDetail()).build();
                 } else {
@@ -92,15 +92,19 @@ public class AuthenticationService {
         }
     }
 
-    public Boolean checkerSession(User dataUser, String session) {
-        if (dataUser.getSession().equals(session)) {
-            if (dataUser.getSessionValid().after(new Date())) {
-                return false;
-            } else {
-                return true;
-            }
+    //NOTE : TRUE MEAN INVALID
+    public Boolean checkerSessionInvalid(String session) {
+        User dataUser = userRepository.findBySession(session);
+        if (dataUser == null) {
+            return true;
         } else {
-            return false;
+            if (dataUser.getSessionValid().after(new Date())) {
+                dataUser.setSession("-");
+                userRepository.save(dataUser);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

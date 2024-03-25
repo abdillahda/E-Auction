@@ -23,7 +23,11 @@ public class Stock {
     private String stockId = UUID.randomUUID().toString();
     private String sellerId;
     private String stockName;
-    private BigInteger price;
+    private BigInteger startPrice;
+    private String description;
+    private String warranty;
+    private Integer amountStock;
+    private String weightStock;
     private String category;
     private String shippingAddress;
     private String stockCondition;

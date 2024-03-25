@@ -3,7 +3,6 @@ package com.eauction.application.util.mapper;
 import com.eauction.application.domain.user.RegisterUserRequest;
 import com.eauction.application.domain.user.UpdateUserRequest;
 import com.eauction.application.domain.user.UserQueryResponse;
-import com.eauction.application.model.Role;
 import com.eauction.application.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -15,12 +14,12 @@ public abstract class UserMapper {
 
     public abstract UserQueryResponse convertToUserQueryResponse(User user);
 
-    public static User registUser(RegisterUserRequest request, Role role) {
+    public static User registUser(RegisterUserRequest request) {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
         user.setPassword(request.getPassword());
-        user.setRole(role);
+        user.setRoleId(request.getRoleId());
         user.setName(request.getName());
         if (user.getPhoneNumber() != null) {
             user.setPhoneNumber(request.getPhoneNumber());

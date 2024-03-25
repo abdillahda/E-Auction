@@ -23,7 +23,9 @@ public class AuctionStock {
     private String auctionId = UUID.randomUUID().toString();
     private String stockId;
     private String auctionName;
-    private Date auctionDate;
+    private Date auctionStart;
+    private Date auctionEnd;
+    private String status;
     private BigInteger highestBid;
     private BigInteger bidMultiple;
 }

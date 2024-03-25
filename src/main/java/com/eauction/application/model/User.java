@@ -1,6 +1,8 @@
 package com.eauction.application.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +28,7 @@ public class User {
 
     @Id
     private String id = UUID.randomUUID().toString();
+    private String roleId;
     private String username;
     private String password;
     private String session;
@@ -34,10 +37,6 @@ public class User {
     private String phoneNumber;
     private String address;
     private Date sessionValid;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "role_id", referencedColumnName = "id")
-    private Role role;
 
     public void setPassword(String value) {
         this.password = passwordEncoder.encode(value);

@@ -2,14 +2,13 @@ package com.eauction.application.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigInteger;
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -21,10 +20,9 @@ import java.util.UUID;
 public class StockDetail {
     @Id
     private String id = UUID.randomUUID().toString();
-    private String stockId;
-    private String description;
-    private String warranty;
-    private Integer amountStock;
-    private String weightStock;
-    private String imageStock;
+
+    @Lob
+    private byte[] imageStock;
+
+    private String descriptionImage;
 }
