@@ -62,23 +62,22 @@ public class UserService {
         }
     }
 
-    public UserQueryResponse updateUser(UpdateUserRequest registerUserRequest, String session) {
+    public GeneralResponse updateUser(UpdateUserRequest registerUserRequest, String session) {
         if (authenticationService.checkerSessionInvalid(session)) {
-            return UserQueryResponse.builder()
+            return GeneralResponse.builder()
                     .messageCode(ResponseMessage.SESSION_INVALID.getMessageCode())
                     .messageDetail(ResponseMessage.SESSION_INVALID.getMessageDetail()).build();
         } else {
             User dataUser = userRepository.findByUsername(registerUserRequest.getUsername());
             if (dataUser == null) {
-                return UserQueryResponse.builder()
+                return GeneralResponse.builder()
                         .messageCode(ResponseMessage.USER_INVALID.getMessageCode())
                         .messageDetail(ResponseMessage.USER_INVALID.getMessageDetail()).build();
             } else {
-                UserQueryResponse response = UserMapper.INSTANCE.convertToUserQueryResponse(userRepository.save(
-                        UserMapper.updateUser(dataUser, registerUserRequest)));
-                response.setMessageCode(ResponseMessage.SUCCESS_UPDATE_USER.getMessageCode());
-                response.setMessageDetail(ResponseMessage.SUCCESS_UPDATE_USER.getMessageDetail());
-                return response;
+                userRepository.save(UserMapper.updateUser(dataUser, registerUserRequest));
+                return GeneralResponse.builder()
+                        .messageCode(ResponseMessage.SUCCESS_UPDATE_USER.getMessageCode())
+                        .messageDetail(ResponseMessage.SUCCESS_UPDATE_USER.getMessageDetail()).build();
             }
         }
     }

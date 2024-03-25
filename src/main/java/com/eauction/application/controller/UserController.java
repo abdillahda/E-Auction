@@ -47,13 +47,13 @@ public class UserController {
 
     @PostMapping("/query")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Page<UserQueryResponse>> getAllUserFilter(@RequestBody SearchQuery query) {
+    public ResponseEntity<Page<UserQueryResponse>> getAllUserFilter(@RequestHeader("session") String session, @RequestBody SearchQuery query) {
         log.info("[UserController.getAllUserFilter]Query :" + query);
         GenericSpecificationsBuilder<User> specBuilder = new GenericSpecificationsBuilder<>();
         specBuilder.with(query.getSearchCriteria());
         Pageable pageable = query.getPageable();
 
-        Page<UserQueryResponse> results = userService.getAllUserFilter(specBuilder.build(),pageable);
+        Page<UserQueryResponse> results = userService.getAllUserFilter(specBuilder.build(), pageable, session);
 
         return ResponseEntity.ok()
                 .header("Access-Control-Expose-Headers", "Content-Range")

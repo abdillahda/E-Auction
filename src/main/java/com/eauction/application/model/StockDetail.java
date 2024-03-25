@@ -21,6 +21,8 @@ public class StockDetail {
     @Id
     private String id = UUID.randomUUID().toString();
 
+    private String stockId;
+
     @Lob
     private byte[] imageStock;
 

@@ -14,6 +14,7 @@ public enum ResponseMessage {
     SUCCESS_UPDATE_STOCK("message", "message"),
     STOCK_INVALID("message", "message"),
     STATUS_STOCK_INVALID("message", "message"),
+    STATUS_AUCTION_INVALID("message", "message"),
     USER_INVALID("message", "message");
     private final String messageDetail;
     private final String messageCode;

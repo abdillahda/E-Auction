@@ -1,5 +1,6 @@
 package com.eauction.application.service;
 
+import com.eauction.application.domain.common.AuctionStatus;
 import com.eauction.application.domain.common.GeneralResponse;
 import com.eauction.application.domain.common.ResponseMessage;
 import com.eauction.application.domain.common.StockStatus;
@@ -73,7 +74,7 @@ public class StockService {
             Stock stockSaved = StockMapper.INSTANCE.convertFromUploadStockRequest(uploadStockRequest);
             stockSaved.setStatus(StockStatus.DRAFT.name());
             save(stockSaved);
-            saveStockDetail(listImages);
+            saveStockDetail(listImages, stockSaved);
             auctionStockRepository.save(AuctionStockMapper.INSTANCE.convertFromUploadStockRequest(uploadStockRequest, stockSaved));
             stockSaved.setStatus(StockStatus.UPLOADED.name());
             save(stockSaved);
@@ -96,27 +97,105 @@ public class StockService {
                         .messageDetail(ResponseMessage.STOCK_INVALID.getMessageDetail()).build();
             } else {
                 if (dataStock.getStatus().equals(StockStatus.UPLOADED.name())) {
-                    save(StockMapper.INSTANCE.updateStock(dataStock, request));
                     AuctionStock dataAuctionStock = auctionStockRepository.findByStockId(request.getStockId());
-                    auctionStockRepository.save(AuctionStockMapper.INSTANCE.updateAuctionStock(dataAuctionStock, request));
-                    return GeneralResponse.builder()
-                            .messageCode(ResponseMessage.SUCCESS_UPDATE_STOCK.getMessageCode())
-                            .messageDetail(ResponseMessage.SUCCESS_UPDATE_STOCK.getMessageDetail()).build();
+                    if (dataAuctionStock.getStatus().equals(AuctionStatus.DRAFT)) {
+                        save(StockMapper.INSTANCE.updateStock(dataStock, request));
+                        auctionStockRepository.save(AuctionStockMapper.INSTANCE.updateAuctionStock(dataAuctionStock, request));
+                        return GeneralResponse.builder()
+                                .messageCode(ResponseMessage.SUCCESS_UPDATE_STOCK.getMessageCode())
+                                .messageDetail(ResponseMessage.SUCCESS_UPDATE_STOCK.getMessageDetail()).build();
+                    } else {
+                        return GeneralResponse.builder()
+                                .messageCode(ResponseMessage.STATUS_AUCTION_INVALID.getMessageCode())
+                                .messageDetail(ResponseMessage.STATUS_AUCTION_INVALID.getMessageDetail()).build();
+                    }
+
                 } else {
                     return GeneralResponse.builder()
                             .messageCode(ResponseMessage.STATUS_STOCK_INVALID.getMessageCode())
                             .messageDetail(ResponseMessage.STATUS_STOCK_INVALID.getMessageDetail()).build();
                 }
-
             }
         }
     }
 
-    private void saveStockDetail(List<MultipartFile> imageFile) throws IOException {
+    public GeneralResponse cancelAuctionStock(String request, String session) throws IOException {
+        if (authenticationService.checkerSessionInvalid(session)) {
+            return GeneralResponse.builder()
+                    .messageCode(ResponseMessage.SESSION_INVALID.getMessageCode())
+                    .messageDetail(ResponseMessage.SESSION_INVALID.getMessageDetail()).build();
+        } else {
+            Stock dataStock = stockRepository.findById(request).orElse(null);
+            if (dataStock == null) {
+                return GeneralResponse.builder()
+                        .messageCode(ResponseMessage.STOCK_INVALID.getMessageCode())
+                        .messageDetail(ResponseMessage.STOCK_INVALID.getMessageDetail()).build();
+            } else {
+                if (dataStock.getStatus().equals(StockStatus.UPLOADED.name())) {
+                    AuctionStock dataAuctionStock = auctionStockRepository.findByStockId(request);
+                    if (dataAuctionStock.getStatus().equals(AuctionStatus.DRAFT.name())) {
+                        auctionStockRepository.delete(dataAuctionStock);
+                        stockDetailRepository.deleteAllByStockId(request);
+                        stockRepository.delete(dataStock);
+                        return GeneralResponse.builder()
+                                .messageCode(ResponseMessage.SUCCESS_UPDATE_STOCK.getMessageCode())
+                                .messageDetail(ResponseMessage.SUCCESS_UPDATE_STOCK.getMessageDetail()).build();
+                    } else {
+                        return GeneralResponse.builder()
+                                .messageCode(ResponseMessage.STATUS_AUCTION_INVALID.getMessageCode())
+                                .messageDetail(ResponseMessage.STATUS_AUCTION_INVALID.getMessageDetail()).build();
+                    }
+                } else {
+                    return GeneralResponse.builder()
+                            .messageCode(ResponseMessage.STATUS_STOCK_INVALID.getMessageCode())
+                            .messageDetail(ResponseMessage.STATUS_STOCK_INVALID.getMessageDetail()).build();
+                }
+            }
+        }
+    }
+
+    public GeneralResponse approveAuctionStock(String request, String session) {
+        if (authenticationService.checkerSessionInvalid(session)) {
+            return GeneralResponse.builder()
+                    .messageCode(ResponseMessage.SESSION_INVALID.getMessageCode())
+                    .messageDetail(ResponseMessage.SESSION_INVALID.getMessageDetail()).build();
+        } else {
+            Stock dataStock = stockRepository.findById(request).orElse(null);
+            if (dataStock == null) {
+                return GeneralResponse.builder()
+                        .messageCode(ResponseMessage.STOCK_INVALID.getMessageCode())
+                        .messageDetail(ResponseMessage.STOCK_INVALID.getMessageDetail()).build();
+            } else {
+                if (dataStock.getStatus().equals(StockStatus.UPLOADED.name())) {
+                    AuctionStock dataAuctionStock = auctionStockRepository.findByStockId(request);
+                    if (dataAuctionStock.getStatus().equals(AuctionStatus.DRAFT.name())) {
+                        dataStock.setStatus(StockStatus.APPROVE.name());
+                        save(dataStock);
+                        dataAuctionStock.setStatus(AuctionStatus.PUBLISH.name());
+                        auctionStockRepository.save(dataAuctionStock);
+                        return GeneralResponse.builder()
+                                .messageCode(ResponseMessage.SUCCESS_UPDATE_STOCK.getMessageCode())
+                                .messageDetail(ResponseMessage.SUCCESS_UPDATE_STOCK.getMessageDetail()).build();
+                    } else {
+                        return GeneralResponse.builder()
+                                .messageCode(ResponseMessage.STATUS_AUCTION_INVALID.getMessageCode())
+                                .messageDetail(ResponseMessage.STATUS_AUCTION_INVALID.getMessageDetail()).build();
+                    }
+                } else {
+                    return GeneralResponse.builder()
+                            .messageCode(ResponseMessage.STATUS_STOCK_INVALID.getMessageCode())
+                            .messageDetail(ResponseMessage.STATUS_STOCK_INVALID.getMessageDetail()).build();
+                }
+            }
+        }
+    }
+
+    private void saveStockDetail(List<MultipartFile> imageFile, Stock stock) throws IOException {
         for (int i = 0; i <= imageFile.size(); i++) {
             stockDetailRepository.save(StockDetail.builder()
                     .imageStock(ImageUtils.compressImage(imageFile.get(i).getBytes()))
-                    .descriptionImage("Image Stock ke-" + i)
+                    .descriptionImage(stock.getStockName() + "-" + i)
+                    .stockId(stock.getStockId())
                     .build());
         }
     }
